@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views import generic
-from .models import Book, Author, BookInstance, Genre, Language
+from .models import Book, Author, BookInstance, Genre, Language, Publisher
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 # Create your views here.
@@ -11,34 +11,57 @@ def index(request):
     """
     View function for home page of site
     """
+
     # Generate counts of some of the main objects
     num_books = Book.objects.all().count()
     num_instances = BookInstance.objects.all().count()
-    # Available books (status = 'a')¨
+    # Available books (status = 'a')
     # Technically not needed if there is only 1 book of each kind
     num_instances_available = BookInstance.objects.filter(status__exact="a").count()
     num_authors = Author.objects.count() # Could just as well be ".all().count(), but .all() is implied by default"
-    count_of_genres = Genre.objects.all()
-    book_word_master = Book.objects.filter(title__contains="master")
+    pubList = Book.objects.count() # TEMP Should be get(publisher)
+    genreList = Genre.objects.count()
+
+    # Books that contain a certain keyword
+    book_word_master = []
+    book_word_rome = []
     
+    for book in Book.objects.filter(title__contains="master"):
+        book_word_master.append(book.__str__() )
+
+    for book in Book.objects.filter(title__contains="rome"):
+        book_word_rome.append(book.__str__() )
+
+    for book in Book.objects.filter(title__contains="roman"):
+        if book.title not in book_word_rome:
+            book_word_rome.append(book.__str__() )
+
     # Number of visits to this view, as counted in the session variable.
     num_visits=request.session.get("num_visits", 0)
     request.session["num_visits"] = num_visits+1
-
-    # TO DO
-    def __str__(self):
-        return self.book_word_master
 
     # Render the HTML template index.html with the data in the context variable
     return render(
         request, 
         "index.html", 
-        context={"num_books":num_books, "num_instances":num_instances, "num_instances_available":num_instances_available, "num_authors":num_authors, "count_of_genres":count_of_genres, "book_word_master":book_word_master, "num_visits":num_visits},
-    )
+        context={"num_books":num_books, "num_instances":num_instances, "num_instances_available":num_instances_available, "num_authors":num_authors, "book_word_master":book_word_master, "book_word_rome":book_word_rome, "num_visits":num_visits, "genreList":genreList, "pubList":pubList,},
+    )  
+
+class Genres(generic.ListView):
+    genreList = []
+    count_of_genres = Genre.objects.all()
+    for genre in count_of_genres:
+        genreList.append(genre)
+
+    model = Genre
+
+class PublisherListView(generic.ListView):
+    model = Publisher
 
 class BookListView(generic.ListView):
     model = Book
-    paginate_by = 10
+    paginate_by = 15
+    ordering = ["-language", "title"]
 
 # Only shows this if the user is logged in
 class BookDetailView(LoginRequiredMixin, generic.DetailView):
@@ -46,7 +69,7 @@ class BookDetailView(LoginRequiredMixin, generic.DetailView):
 
 class AuthorListView(generic.ListView):
     model = Author
-    paginate_by = 10
+    paginate_by = 15
 
 # Only shows this if the user is logged in
 class AuthorDetailView(LoginRequiredMixin, generic.DetailView):
@@ -91,6 +114,7 @@ def renew_book_librarian(request, pk):
 
     # If this is a POST request then process the Form data
     if request.method == "POST":
+
 
         # Create a form instance and populate it with data from the request (binding):
         form = RenewBookForm(request.POST)
@@ -141,14 +165,10 @@ class BookCreate(PermissionRequiredMixin, CreateView):
 
 class BookUpdate(PermissionRequiredMixin, UpdateView):
     model = Book
-    fields = ["title", "author", "summary", "isbn", "genre", "language"]
+    fields = ["title", "author", "summary", "isbn", "publisher", "genre", "language"]
     permission_required = "catalog.can_mark_returned"
 
 class BookDelete(PermissionRequiredMixin, DeleteView):
     model = Book
     success_url = reverse_lazy("books")
     permission_required = "catalog.can_mark_returned"
-
-# About me page	
-def aboutme(request):
-	return render(request, "about.html"),

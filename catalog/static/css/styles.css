@@ -1,5 +1,61 @@
-.sidebar-nav {
+body {
+    background-color: #464646;
+    color: black;
+}
+
+h1, h2 {
+    text-shadow: #FC0 1px 0 10px;
+    font-weight: bold;    
+}
+
+#loginbtn {
+    background-color: black;
+    color: skyblue;
+    font-size: 20px;
+}
+
+.pagebtn {
+    margin: 0 5px 0 5px;
+    padding: 0 5px 0 5px;
+    background-color: black;
+    color: skyblue;
+    border: 3px solid black;
+    border-radius: 15px 15px 2px 2px;
+    font-size: 20px;
+}
+
+.pagenum {
+    margin: 0 auto 0 25%;
+    font-size: 20px;
+}
+
+/** Add flexbox to organize things on screen */
+
+/** Some dank CSS Grid */
+.wrapper {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-gap: 10px;
+    grid-auto-rows: minmax(100px, auto);
+    width: 80%;
+    margin: 0 auto;
+}
+
+.left {
+    display: grid;
+    grid-column: 1;
     margin-top: 20px;
-    padding: 0;
+    padding: 5px;
+    border-radius: 10px;
     list-style: none;
+    text-align: left;
+    background-color: black;
+}
+
+.middle {
+    display: grid;
+    grid-column: 2 / span 3;
+    border: 25px ridge rgb(100, 100, 100, .9);
+    background-color: lightgray;
+    padding: 10px;
 }

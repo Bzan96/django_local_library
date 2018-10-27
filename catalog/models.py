@@ -13,7 +13,7 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.genreType
-    
+
 # Books
 class Book(models.Model):
     # Fields
@@ -21,6 +21,7 @@ class Book(models.Model):
     author = models.ForeignKey("Author", on_delete=models.SET_NULL, null=True)
     summary = models.TextField(max_length=300, help_text="Summary of the book")
     isbn = models.CharField("ISBN", max_length=20, help_text="A long row of digits")
+    publisher = models.CharField("Publisher", max_length=40, help_text="Who is the publisher?", null=True)
     genre = models.ManyToManyField(Genre, help_text="Select a genre for this book")
     language = models.ForeignKey("Language", on_delete=models.SET_NULL, null=True)
 
@@ -30,17 +31,29 @@ class Book(models.Model):
         return ", ".join([ genre.genreType for genre in self.genre.all()[:3] ] )
         display_genre.short_description = "Genre"
 
+    def display_publisher(self):
+        # Creates a string for the Publisher. This is required to display Publisher in admin.
+        self.publisher = Book.publisher.__str__()
+        return self.publisher
+
     def get_absolute_url(self):
         return reverse('book-detail', args=[str(self.id) ] )
     
     def __str__(self):
         return self.title
 
+# Doesn't work yet - database issue probably
+class Publisher(models.Model):
+    company = Book.display_publisher
+
+    def __str__(self):
+        return self.company
+
 # Authors
 class Author(models.Model):
     # Fields
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=40)
+    last_name = models.CharField(max_length=40)
 
     # Metadata
     class Meta:
@@ -56,7 +69,7 @@ class Author(models.Model):
 # Languages
 class Language(models.Model):
     # Fields
-    language = models.CharField(max_length=200, help_text="Which language is the book written in?")
+    language = models.CharField(max_length=30, help_text="Which language is the book written in?")
     
     def __str__(self):
         return self.language
@@ -64,7 +77,7 @@ class Language(models.Model):
 # BookInstance - loaned or not
 class BookInstance(models.Model):
     # Fields
-    imprint = models.CharField(max_length=20, help_text="Who is the publisher?")
+    #publish_year = models.CharField(max_length=4, help_text="Which year was the book published?")
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text="Unique ID for this particular book across whole library")
     book = models.ForeignKey("Book", on_delete=models.SET_NULL, null=True)
     due_back = models.DateField(null=True, blank=True)
@@ -78,7 +91,7 @@ class BookInstance(models.Model):
         ('r','Reserved'),
     )
 
-    status = models.CharField(max_length=1, choices=LOAN_STATUS, blank=True, default='m', help_text="Book availability")
+    status = models.CharField(max_length=1, choices=LOAN_STATUS, blank=True, default='a', help_text="Book availability")
 
     # Metadata
     class Meta:

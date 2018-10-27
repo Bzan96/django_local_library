@@ -3,11 +3,12 @@
 {% block content %}
 <h1>Title: {{ book.title }}</h1>
 
-<p><strong>Author:</strong><a href="{% url 'author-detail' book.author.pk %}">{{ book.author }}</a></p>
-<p><strong>Summary:</strong>{{ book.summary }}</p>
-<p><strong>ISBN:</strong>{{ book.isbn }}</p>
-<p><strong>Language:</strong>{{ book.language }}</p>
-<p><strong>Genre:</strong>{% for genre in book.genre.all %} {{ book.genre }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+<p><strong>Author: </strong><a href="{% url 'author-detail' book.author.pk %}">{{ book.author }}</a></p>
+<p><strong>Summary: </strong>{{ book.summary }}</p>
+<p><strong>ISBN: </strong>{{ book.isbn }}</p>
+<p><strong>Publisher: </strong>{{ book.publisher }}</p>
+<p><strong>Language: </strong>{{ book.language }}</p>
+<p><strong>Genre: </strong>{{ book.display_genre }}</p>
 
 <div><a style="margin-right: 50px;" href="{% url 'book_update' book.pk %}">Update the book</a><a href="{% url 'book_delete' book.pk %}">Delete the book</a></div>
 

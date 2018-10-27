@@ -262,4 +262,14 @@ class RenewBookInstancesViewTest(TestCase):
 
 # Challenge! Remember that you need to check anything that you specify or that is part of the design!
 # This will include who has access, the initial date, the template used, and where the view redirects on success.
-# class AuthorCreate(TestCase):
+class AuthorCreate(TestCase):
+    def setUp(self):
+        # Create a user
+        test_user1 = User.objects.create(username="testuser1", password="12345")
+        test_user1.save()
+
+        test_user2 = User.objects.create(username="testuser2", password="12345")
+        test_user2.save()
+        permission = Permission.objects.get(name="Set book as returned")
+        test_user2.user_permissions.add(permission)
+        test_user2.save()
